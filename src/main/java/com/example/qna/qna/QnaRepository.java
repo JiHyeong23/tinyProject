@@ -12,5 +12,8 @@ import java.util.List;
 @Repository
 public interface QnaRepository extends JpaRepository<QNA, Long> {
     Page<QNA> findByQuestionStatusNotAndCategoryNotOrderByCreatedAtDesc(QuestionStatus questionStatus, Category category, Pageable pageable);
+    Page<QNA> findByTitleContainingOrContentContainingAndQuestionStatusNotAndCategoryNotOrderByCreatedAtDesc(
+            String title, String content, QuestionStatus questionStatus, Category category, Pageable pageable);
+    List<QNA> findByGroupIdAndCategory(Long GroupId, Category category);
 
 }

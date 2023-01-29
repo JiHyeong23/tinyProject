@@ -3,14 +3,11 @@ package com.example.qna.qna.service;
 import com.example.qna.member.Member;
 import com.example.qna.member.MemberRepository;
 import com.example.qna.qna.QNA;
-import com.example.qna.qna.dto.AnswerPostDto;
-import com.example.qna.qna.dto.QnaResponseDto;
-import com.example.qna.qna.dto.QuestionPatchDto;
+import com.example.qna.qna.dto.*;
 import com.example.qna.qna.enums.Category;
 import com.example.qna.qna.enums.QuestionStatus;
 import com.example.qna.qna.mapper.QnaMapper;
 import com.example.qna.qna.QnaRepository;
-import com.example.qna.qna.dto.QnaPostDto;
 import com.example.qna.qnaLike.QnaLike;
 import com.example.qna.qnaLike.QnaLikeRepository;
 import lombok.NoArgsConstructor;
@@ -18,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -52,7 +51,7 @@ public class QnaServiceImpl implements QnaService {
         String random = String.valueOf((int)(Math.random()*10000));
         Long unique = Long.parseLong(time + random);
 
-        qna.setGroup_id(unique);
+        qna.setGroupId(unique);
         qna.setQuestionStatus(QuestionStatus.QUESTION_REGISTRATION);
         qna.setCategory(Category.QUESTION);
         qna.setCreatedAt(LocalDateTime.now());
@@ -65,7 +64,7 @@ public class QnaServiceImpl implements QnaService {
     public void answerSave(AnswerPostDto answerPostDto, Long questionId) {
         QNA qna = qnaMapper.answerPostDtoToQNA(answerPostDto);
         QNA question = qnaRepository.findById(questionId).get();
-        qna.setGroup_id(question.getGroup_id());
+        qna.setGroupId(question.getGroupId());
         question.setQuestionStatus(QuestionStatus.QUESTION_ANSWERED);
         qna.setCategory(Category.ANSWER);
         qna.setCreatedAt(LocalDateTime.now());
@@ -100,37 +99,64 @@ public class QnaServiceImpl implements QnaService {
     }
 
     @Override
-    public QnaResponseDto findQna(Long questionId) {
+    public QnAsResponseDto findQna(Long questionId) {
         QNA qna = qnaRepository.findById(questionId).get();
         QnaResponseDto qnaResponseDto = qnaMapper.qnaToDto(qna);
+        Member member = memberRepository.findById(qna.getMember().getMemberId()).get();
+
+        if(qnaLikeRepository.findByQnaAndMember(qna, member) != null) {
+            qnaResponseDto.setLike(true);
+        }
 
         Long viewCount = qna.getViewCount();
         qnaResponseDto.setViewCount(++viewCount);
-
         qna.setViewCount(viewCount);
+
         qnaRepository.save(qna);
 
-        return qnaResponseDto;
+        qnaResponseDto.setLikes(qnaLikeRepository.countByQna(qna));
+
+        Long groupId = qna.getGroupId();
+        List<QNA> answers = qnaRepository.findByGroupIdAndCategory(groupId, Category.ANSWER);
+        List<QnaResponseDto> answerResponseDtos = qnaMapper.qnasToQnaResponseDtos(answers);
+
+        return new QnAsResponseDto(qnaResponseDto, answerResponseDtos);
     }
 
     @Override
     public Page<QNA> findQnas(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        return qnaRepository.findByQuestionStatusNotAndCategoryNotOrderByCreatedAtDesc(QuestionStatus.QUESTION_DELETE, Category.ANSWER, pageRequest);
+        return qnaRepository.findByQuestionStatusNotAndCategoryNotOrderByCreatedAtDesc(
+                QuestionStatus.QUESTION_DELETE, Category.ANSWER, pageRequest);
     }
 
     @Override
     public void deleteQna(Long questionId) {
         QNA qna = qnaRepository.findById(questionId).get();
         qna.setQuestionStatus(QuestionStatus.QUESTION_DELETE);
+        //답변상태도 바꿔주기
         qnaRepository.save(qna);
     }
 
     @Override
+    @Transactional
     public void qnaLike(Long questionId, Long memberId) {
         QNA qna = qnaRepository.findById(questionId).get();
         Member member = memberRepository.findById(memberId).get();
-        QnaLike qnaLike = new QnaLike(member, qna);
-        qnaLikeRepository.save(qnaLike);
+
+        if(qnaLikeRepository.findByQnaAndMember(qna, member) == null) {
+            QnaLike qnaLike = new QnaLike(member, qna);
+            qnaLikeRepository.save(qnaLike);
+        }
+        else {
+            qnaLikeRepository.deleteByQnaAndMember(qna, member);
+        }
+    }
+
+    @Override
+    public Page<QNA> searchQna(String searchString, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return qnaRepository.findByTitleContainingOrContentContainingAndQuestionStatusNotAndCategoryNotOrderByCreatedAtDesc(
+                searchString, searchString, QuestionStatus.QUESTION_DELETE, Category.ANSWER, pageRequest);
     }
 }

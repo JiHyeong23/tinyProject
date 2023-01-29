@@ -1,10 +1,7 @@
 package com.example.qna.qna.service;
 
 import com.example.qna.qna.QNA;
-import com.example.qna.qna.dto.AnswerPostDto;
-import com.example.qna.qna.dto.QnaPostDto;
-import com.example.qna.qna.dto.QnaResponseDto;
-import com.example.qna.qna.dto.QuestionPatchDto;
+import com.example.qna.qna.dto.*;
 import org.springframework.data.domain.Page;
 
 public interface QnaService {
@@ -14,8 +11,9 @@ public interface QnaService {
     void patchQuestion(QuestionPatchDto questionPatchDto, Long questionId);
     void patchAnswer(AnswerPostDto answerPostDto, Long questionId);
     void qnaLike(Long questionId, Long memberId);
-    QnaResponseDto findQna(Long questionId);
+    QnAsResponseDto findQna(Long questionId);
     Page<QNA> findQnas(int page, int size);
+    Page<QNA> searchQna(String searchString, int page, int size);
 
 
 

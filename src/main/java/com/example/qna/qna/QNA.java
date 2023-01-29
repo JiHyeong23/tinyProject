@@ -31,7 +31,7 @@ public class QNA {
     private LocalDateTime modifiedAt;
     private QuestionStatus questionStatus;
     private Secret secret;
-    private Long group_id;
+    private Long groupId;
     private Category category;
     private Long viewCount;
 

@@ -57,7 +57,7 @@ public class QnaController {
     //answer 같이 보내야함
     @GetMapping("/{qna-id}")
     public ResponseEntity getQna(@PathVariable(name="qna-id") Long questionId) {
-        QnaResponseDto qna = qnaService.findQna(questionId);
+        QnAsResponseDto qna = qnaService.findQna(questionId);
         return new ResponseEntity<>(qna, HttpStatus.OK);
     }
 
@@ -69,8 +69,6 @@ public class QnaController {
 
         List<QNA> qnas = qnaPage.getContent();
         List<QnaResponseDto> response = qnaMapper.qnasToQnaResponseDtos(qnas);
-        System.out.println("response = " + response);
-        System.out.println("pageInfo = " + pageInfo);
 
         return new ResponseEntity<>(new QnaPageDto(response, pageInfo), HttpStatus.OK);
     }
@@ -88,4 +86,16 @@ public class QnaController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity qnaSearch(@RequestParam(name="keyword") String searchString,
+                                    @Positive @RequestParam int page,
+                                    @Positive@RequestParam int size) {
+        Page<QNA> qnaPage = qnaService.searchQna(searchString, page, size);
+        PageInfo pageInfo = new PageInfo(page-1, size, (int)qnaPage.getTotalElements(), qnaPage.getTotalPages());
+
+        List<QNA> qnas = qnaPage.getContent();
+        List<QnaResponseDto> response = qnaMapper.qnasToQnaResponseDtos(qnas);
+
+        return new ResponseEntity<>(new QnaPageDto(response, pageInfo), HttpStatus.OK);
+    }
 }
