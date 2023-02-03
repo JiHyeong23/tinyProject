@@ -11,7 +11,7 @@ public interface QnaService {
     void patchQuestion(QuestionPatchDto questionPatchDto, Long questionId);
     void patchAnswer(AnswerPostDto answerPostDto, Long questionId);
     void qnaLike(Long questionId, Long memberId);
-    QnAsResponseDto findQna(Long questionId);
+    QnAsResponseDto findQna(Long questionId, Long memberId);
     Page<QNA> findQnas(int page, int size);
     Page<QNA> searchQna(String searchString, int page, int size);
 

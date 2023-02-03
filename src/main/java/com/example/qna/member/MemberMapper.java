@@ -3,7 +3,12 @@ package com.example.qna.member;
 import com.example.qna.member.dto.MemberPatchDto;
 import com.example.qna.member.dto.MemberPostDto;
 import com.example.qna.member.dto.MemberResponseDto;
+import com.example.qna.qna.QNA;
+import com.example.qna.qna.dto.QnaResponseDto;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class MemberMapper {
@@ -25,7 +30,7 @@ public class MemberMapper {
         MemberResponseDto memberResponseDto = new MemberResponseDto();
         memberResponseDto.setMemberId(member.getMemberId());
         memberResponseDto.setEmail(member.getEmail());
-        memberResponseDto.setPw(member.getPw());
+      //  memberResponseDto.setPw(member.getPw());
         memberResponseDto.setName(member.getName());
         memberResponseDto.setCreatedAt(member.getCreatedAt());
         return memberResponseDto;

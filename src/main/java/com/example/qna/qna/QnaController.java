@@ -54,10 +54,15 @@ public class QnaController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //answer 같이 보내야함
-    @GetMapping("/{qna-id}")
-    public ResponseEntity getQna(@PathVariable(name="qna-id") Long questionId) {
-        QnAsResponseDto qna = qnaService.findQna(questionId);
+//    @GetMapping("/{qna-id}")
+//    public ResponseEntity getQna(@PathVariable(name="qna-id") Long questionId) {
+//        QnAsResponseDto qna = qnaService.findQna(questionId);
+//        return new ResponseEntity<>(qna, HttpStatus.OK);
+//    }
+    @GetMapping("/{qna-id}/{member-id}")
+    public ResponseEntity getQna(@PathVariable(name="qna-id") Long questionId,
+                                 @PathVariable(name="member-id") Long memberId) {
+        QnAsResponseDto qna = qnaService.findQna(questionId, memberId);
         return new ResponseEntity<>(qna, HttpStatus.OK);
     }
 
@@ -65,7 +70,7 @@ public class QnaController {
     public ResponseEntity getQnas(@Positive @RequestParam int page,
                                   @Positive @RequestParam int size) {
         Page<QNA> qnaPage = qnaService.findQnas(page-1, size);
-        PageInfo pageInfo = new PageInfo(page, size, (int)qnaPage.getTotalElements(), qnaPage.getTotalPages());
+        PageInfo pageInfo = new PageInfo(page-1, size, (int)qnaPage.getTotalElements(), qnaPage.getTotalPages());
 
         List<QNA> qnas = qnaPage.getContent();
         List<QnaResponseDto> response = qnaMapper.qnasToQnaResponseDtos(qnas);
@@ -89,8 +94,8 @@ public class QnaController {
     @GetMapping("/search")
     public ResponseEntity qnaSearch(@RequestParam(name="keyword") String searchString,
                                     @Positive @RequestParam int page,
-                                    @Positive@RequestParam int size) {
-        Page<QNA> qnaPage = qnaService.searchQna(searchString, page, size);
+                                    @Positive @RequestParam int size) {
+        Page<QNA> qnaPage = qnaService.searchQna(searchString, page-1, size);
         PageInfo pageInfo = new PageInfo(page-1, size, (int)qnaPage.getTotalElements(), qnaPage.getTotalPages());
 
         List<QNA> qnas = qnaPage.getContent();

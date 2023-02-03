@@ -1,14 +1,12 @@
 package com.example.qna.member.dto;
 
-import com.example.qna.qna.PageInfo;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MemberPageDto<T> {
-
+@AllArgsConstructor
+public class MemberSingleDto<T> {
     private T data;
-    private PageInfo pageInfo;
-
 }

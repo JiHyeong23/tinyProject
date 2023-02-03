@@ -11,7 +11,6 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @ToString
 public class QnaPostDto {
-
     @NotBlank
     private Long memberId;
     @NotBlank

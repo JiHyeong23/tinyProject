@@ -68,6 +68,7 @@ public class QnaServiceImpl implements QnaService {
         question.setQuestionStatus(QuestionStatus.QUESTION_ANSWERED);
         qna.setCategory(Category.ANSWER);
         qna.setCreatedAt(LocalDateTime.now());
+        qna.setSecret(question.getSecret());
 
         qnaRepository.save(qna);
         qnaRepository.save(question);
@@ -99,13 +100,17 @@ public class QnaServiceImpl implements QnaService {
     }
 
     @Override
-    public QnAsResponseDto findQna(Long questionId) {
+    public QnAsResponseDto findQna(Long questionId, Long memberId) {
         QNA qna = qnaRepository.findById(questionId).get();
         QnaResponseDto qnaResponseDto = qnaMapper.qnaToDto(qna);
-        Member member = memberRepository.findById(qna.getMember().getMemberId()).get();
 
-        if(qnaLikeRepository.findByQnaAndMember(qna, member) != null) {
-            qnaResponseDto.setLike(true);
+        if(memberId != -1) {
+            Member likeMember = memberRepository.findById(memberId).get();
+            if (qnaLikeRepository.findByQnaAndMember(qna, likeMember) != null) {//좋아요 눌렀을때
+                qnaResponseDto.setLike(true);
+            } else {//취소
+                qnaResponseDto.setLike(false);
+            }
         }
 
         Long viewCount = qna.getViewCount();
@@ -134,7 +139,12 @@ public class QnaServiceImpl implements QnaService {
     public void deleteQna(Long questionId) {
         QNA qna = qnaRepository.findById(questionId).get();
         qna.setQuestionStatus(QuestionStatus.QUESTION_DELETE);
-        //답변상태도 바꿔주기
+
+        List<QNA> answers = qnaRepository.findByGroupId(qna.getGroupId());
+        for (QNA answer : answers) {
+            answer.setQuestionStatus(QuestionStatus.QUESTION_DELETE);
+            qnaRepository.save(answer);
+        }
         qnaRepository.save(qna);
     }
 

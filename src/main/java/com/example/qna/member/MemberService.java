@@ -6,21 +6,34 @@ import com.example.qna.member.dto.MemberPostDto;
 import com.example.qna.member.dto.MemberResponseDto;
 import com.example.qna.member.enums.Role;
 import com.example.qna.member.enums.Status;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.example.qna.qna.QNA;
+import com.example.qna.qna.QnaRepository;
+import com.example.qna.qna.enums.Category;
+import com.example.qna.qna.enums.QuestionStatus;
+import com.example.qna.qnaLike.QnaLike;
+import com.example.qna.qnaLike.QnaLikeRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class MemberService {
     private MemberRepository memberRepository;
     private MemberMapper memberMapper;
+    private final QnaLikeRepository qnaLikeRepository;
+    private final QnaRepository qnaRepository;
 
-    public MemberService(MemberRepository memberRepository, MemberMapper memberMapper) {
+    public MemberService(MemberRepository memberRepository, MemberMapper memberMapper,
+                         QnaLikeRepository qnaLikeRepository,
+                         QnaRepository qnaRepository) {
         this.memberRepository = memberRepository;
         this.memberMapper = memberMapper;
+        this.qnaLikeRepository = qnaLikeRepository;
+        this.qnaRepository = qnaRepository;
     }
 
     public void memberSave(MemberPostDto memberPostDto) {
@@ -31,6 +44,15 @@ public class MemberService {
         member.setRole(Role.ROLE_USER);
 
         memberRepository.save(member);
+    }
+
+    public MemberResponseDto memberLogin(MemberLoginDto memberLoginDto) {
+        Member member = memberRepository.findByEmailAndPw(memberLoginDto.getEmail(), memberLoginDto.getPw());
+        if(member == null) {
+            return null;
+        }
+        MemberResponseDto memberResponseDto = memberMapper.memberTomemberResponseDto(member);
+        return memberResponseDto;
     }
 
     public MemberResponseDto findMember(Long memberId){
@@ -51,18 +73,28 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public MemberResponseDto memberLogin(MemberLoginDto memberLoginDto) {
-        Member member = memberRepository.findByEmailAndPw(memberLoginDto.getEmail(), memberLoginDto.getPw());
-        if(member == null) {
-            return null;
-        }
-        MemberResponseDto memberResponseDto = memberMapper.memberTomemberResponseDto(member);
-        return memberResponseDto;
-    }
-
     public void memberDelete(Long memberId) {
         Member member = memberRepository.findById(memberId).get();
         member.setMember_Status(Status.MEMBER_QUIT);
         memberRepository.save(member);
     }
+
+    public Page<QNA> findMemberPost(Long memberId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        return qnaRepository.findByMember_memberIdAndCategoryNotAndQuestionStatusNotOrderByCreatedAtDesc(
+                memberId, Category.ANSWER, QuestionStatus.QUESTION_DELETE, pageRequest);
+    }
+
+    public Page<QNA> findLikedPost(Long memberId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Member member = memberRepository.findById(memberId).get();
+        List<QnaLike> qnaLike = qnaLikeRepository.findByMember(member);
+        List<Long> likeList = new ArrayList<>();
+        for (QnaLike like : qnaLike) {
+            likeList.add(like.getQna().getQnaId());
+        }
+        return qnaRepository.findByQnaIdIn(likeList, pageRequest);
+    }
+
 }

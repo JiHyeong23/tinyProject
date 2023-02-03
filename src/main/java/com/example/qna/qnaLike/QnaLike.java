@@ -2,16 +2,14 @@ package com.example.qna.qnaLike;
 
 import com.example.qna.member.Member;
 import com.example.qna.qna.QNA;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
 @Entity
+@ToString
 @NoArgsConstructor
 public class QnaLike {
     @Id

@@ -42,6 +42,7 @@ public class QNA {
 //    List<QnaImage> images (OTM);
 
     @OneToMany(mappedBy = "qna")
+    @ToString.Exclude
     private List<QnaLike> likes = new ArrayList<>();
 
 }

@@ -14,8 +14,9 @@ public class MemberResponseDto {
     private String email;
     private String pw;
     private String name;
-    //private Status member_Status;
-    //private Role
+    private Status member_Status;
+    private Role role;
     private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
 }

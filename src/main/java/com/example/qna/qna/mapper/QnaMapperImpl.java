@@ -30,7 +30,6 @@ public class QnaMapperImpl implements QnaMapper {
         Member member = new Member();
         qna.setMember(member);
         qna.getMember().setMemberId(qnaPostDto.getMemberId());
-        System.out.println("ok");
         return qna;
     }
 
@@ -41,7 +40,6 @@ public class QnaMapperImpl implements QnaMapper {
         qna.setMember(member);
         qna.getMember().setMemberId(answerPostDto.getMemberId());
         qna.setContent(answerPostDto.getContent());
-        System.out.println("o~k");
         return qna;
     }
 
@@ -56,6 +54,7 @@ public class QnaMapperImpl implements QnaMapper {
         qnaResponseDto.setSecret(qna.getSecret());
         qnaResponseDto.setQuestionStatus(qna.getQuestionStatus());
         qnaResponseDto.setViewCount(qna.getViewCount());
+        qnaResponseDto.setLikes(qna.getLikes().stream().count());
 
         LocalDateTime create = qna.getCreatedAt();
         qnaResponseDto.setCreatedAt(create);
@@ -74,6 +73,7 @@ public class QnaMapperImpl implements QnaMapper {
         for(QNA qna : qnas) {
             list.add(qnaToDto(qna));
         }
+
         return list;
     }
 
