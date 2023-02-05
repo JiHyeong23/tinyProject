@@ -20,5 +20,5 @@ public interface QnaRepository extends JpaRepository<QNA, Long> {
     Page<QNA> findByMember_memberIdAndCategoryNotAndQuestionStatusNotOrderByCreatedAtDesc(
             @Param(value="memberId")Long memberId, Category category, QuestionStatus questionStatus, Pageable pageable);
     List<QNA> findByGroupId(Long GroupId);
-    Page<QNA> findByQnaIdIn(List<Long> likeList, Pageable pageable);
+    Page<QNA> findByQnaIdInAndCategoryNotAndQuestionStatusNotOrderByCreatedAtDesc(List<Long> likeList, Category category, QuestionStatus questionStatus, Pageable pageable);
 }

@@ -19,7 +19,7 @@ public class QnaResponseDto {
     private String name;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private Long likes;
+    private Long likeCount;
     private boolean isNew;
     private Long viewCount;
     private Secret secret;

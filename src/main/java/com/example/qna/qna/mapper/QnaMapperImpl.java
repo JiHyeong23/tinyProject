@@ -54,7 +54,7 @@ public class QnaMapperImpl implements QnaMapper {
         qnaResponseDto.setSecret(qna.getSecret());
         qnaResponseDto.setQuestionStatus(qna.getQuestionStatus());
         qnaResponseDto.setViewCount(qna.getViewCount());
-        qnaResponseDto.setLikes(qna.getLikes().stream().count());
+        qnaResponseDto.setLikeCount(qna.getLikes().stream().count());
 
         LocalDateTime create = qna.getCreatedAt();
         qnaResponseDto.setCreatedAt(create);

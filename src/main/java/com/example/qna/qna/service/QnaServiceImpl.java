@@ -119,7 +119,7 @@ public class QnaServiceImpl implements QnaService {
 
         qnaRepository.save(qna);
 
-        qnaResponseDto.setLikes(qnaLikeRepository.countByQna(qna));
+        qnaResponseDto.setLikeCount(qnaLikeRepository.countByQna(qna));
 
         Long groupId = qna.getGroupId();
         List<QNA> answers = qnaRepository.findByGroupIdAndCategory(groupId, Category.ANSWER);

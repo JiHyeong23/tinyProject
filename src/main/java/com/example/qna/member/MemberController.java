@@ -55,8 +55,9 @@ public class MemberController {
     }
 
     @DeleteMapping("/{member-id}")
-    public ResponseEntity deleteMember (@PathVariable(name="member-id") Long memberId) {
-        memberService.memberDelete(memberId);
+    public ResponseEntity deleteMember (@PathVariable(name="member-id") Long memberId,
+                                        @RequestBody MemberLoginDto memberLoginDto) {
+        memberService.memberDelete(memberId, memberLoginDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

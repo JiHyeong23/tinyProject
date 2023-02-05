@@ -54,11 +54,6 @@ public class QnaController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-//    @GetMapping("/{qna-id}")
-//    public ResponseEntity getQna(@PathVariable(name="qna-id") Long questionId) {
-//        QnAsResponseDto qna = qnaService.findQna(questionId);
-//        return new ResponseEntity<>(qna, HttpStatus.OK);
-//    }
     @GetMapping("/{qna-id}/{member-id}")
     public ResponseEntity getQna(@PathVariable(name="qna-id") Long questionId,
                                  @PathVariable(name="member-id") Long memberId) {

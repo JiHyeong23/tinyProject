@@ -51,6 +51,9 @@ public class MemberService {
         if(member == null) {
             return null;
         }
+        if(member.getMember_Status() == Status.MEMBER_QUIT) {
+            return null;
+        }
         MemberResponseDto memberResponseDto = memberMapper.memberTomemberResponseDto(member);
         return memberResponseDto;
     }
@@ -64,19 +67,22 @@ public class MemberService {
 
     public void memberPatch(MemberPatchDto memberPatchDto, Long memberId) {
         Member member = memberRepository.findById(memberId).get();
-        if(memberPatchDto.getPw() != null) {
+        if(memberPatchDto.getPw() != null && !memberPatchDto.getPw().equals("")) {
             member.setPw(memberPatchDto.getPw());
         }
-        if(memberPatchDto.getName() != null) {
+        if(memberPatchDto.getName() != null && !memberPatchDto.getName().equals("")) {
             member.setName(memberPatchDto.getName());
         }
         memberRepository.save(member);
     }
 
-    public void memberDelete(Long memberId) {
+    public void memberDelete(Long memberId, MemberLoginDto memberLoginDto) {
+        String pw = memberLoginDto.getPw();
         Member member = memberRepository.findById(memberId).get();
-        member.setMember_Status(Status.MEMBER_QUIT);
-        memberRepository.save(member);
+        if(member.getPw().equals(pw)) {
+            member.setMember_Status(Status.MEMBER_QUIT);
+            memberRepository.save(member);
+        } //else
     }
 
     public Page<QNA> findMemberPost(Long memberId, int page, int size) {
@@ -94,7 +100,8 @@ public class MemberService {
         for (QnaLike like : qnaLike) {
             likeList.add(like.getQna().getQnaId());
         }
-        return qnaRepository.findByQnaIdIn(likeList, pageRequest);
+        System.out.println(likeList);
+        return qnaRepository.findByQnaIdInAndCategoryNotAndQuestionStatusNotOrderByCreatedAtDesc(likeList, Category.ANSWER, QuestionStatus.QUESTION_DELETE, pageRequest);
     }
 
 }
